@@ -8,7 +8,6 @@ public class Testing : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        /*
         int index = 0;
         for (int y = 0; y < 2; y++)
         {
@@ -20,6 +19,6 @@ public class Testing : MonoBehaviour
                     index++;
                 }
             }
-        }*/
+        }
     }
 }

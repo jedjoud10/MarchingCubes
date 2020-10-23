@@ -13,13 +13,10 @@ using UnityEngine.Jobs;
 [BurstCompile]
 public struct MarchingCubeOptimizeJob : IJob
 {
-    [ReadOnly]
-    public NativeArray<Vector3> vertices;
+    public NativeArray<float3> vertices;
     public NativeList<Vector3> finalVertices;
-    [ReadOnly]
-    public NativeList<int> triangles;
+    public NativeArray<int> triangles;
     public NativeList<int> finalTriangles;
-    [ReadOnly]
     public NativeArray<Color> colors;
     public NativeList<Color> finalColors;
     public void Execute()
@@ -60,11 +57,11 @@ public struct MarchingCubeOptimizeJob : IJob
         }
         triangles = new NativeArray<int>(tris, Allocator.Temp);
         vertices = new NativeArray<Vector3>(verts2, Allocator.Temp);
-        */
+        */        
         NativeHashMap<Vector3, int> duplicateHashTable = new NativeHashMap<Vector3, int>(0, Allocator.Temp);
         NativeList<int> newVerts = new NativeList<int>(0, Allocator.Temp);
         NativeArray<int> map = new NativeArray<int>(vertices.Length, Allocator.Temp);
-
+        
         //create mapping and find duplicates, dictionaries are like hashtables, mean fast
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -88,9 +85,26 @@ public struct MarchingCubeOptimizeJob : IJob
             finalColors.Add(colors[a]);
         }
         // map the triangle to the new vertices
+        bool isEmpty = true;
         for (int i = 0; i < triangles.Length; i++)
         {
-            if(triangles[i] != -1) finalTriangles.Add(map[triangles[i]]);
+            if (i < 12)
+            {
+                finalTriangles.Add(map[triangles[i]]);
+                isEmpty &= triangles[i] == 0;
+            }
+            else if (triangles[i] != 0)
+            {
+                finalTriangles.Add(map[triangles[i]]);
+                isEmpty = false;
+            }
         }
+        
+        //finalTriangles.RemoveRangeWithBeginEnd(0, 12);
+        if (finalTriangles.Length == 12 && finalVertices.Length == 1) 
+        {
+            finalTriangles.Clear();
+        }
+        
     }
 }
